@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#ajaxBtn').click(function(){
+
+                $.get('https://localhost:8444/user/parker', {name:'Steve'}, function (data, textStatus, jqXHR) {
+                    $('p').append(data.firstName);
+                });
+            });
+            $('#ajaxJwtBtn').click(function(){
+                var url = 'https://localhost:8444/user/parker';
+                var idToken = sessionStorage.getItem('id_token');
+                var headers = { Authorization: 'Bearer ' + idToken };
+
+                $.ajax({
+                    url: url,
+                    headers: headers
+                })
+                    .done(function(result) {
+                        $('p').append(result.firstName);
+                    })
+                    .fail(function(err) {
+                        $('p').append("call failed");
+                    });
+            });
+        });
+
+
+        function callAPI(endpoint, secured) {
+            var url = apiUrl + endpoint;
+            var accessToken = localStorage.getItem('access_token');
+
+            var headers;
+            if (secured && accessToken) {
+                headers = { Authorization: 'Bearer ' + accessToken };
+            }
+
+            $.ajax({
+                url: url,
+                headers: headers
+            })
+                .done(function(result) {
+                    $('#ping-view h2').text(result.message);
+                })
+                .fail(function(err) {
+                    $('#ping-view h2').text('Request failed: ' + err.statusText);
+                });
+        }
+    </script>
+
+</head>
+<body>
+<h1>hello</h1>
+<script src="js/parseParms.js"></script>
+
+
+
+<div id="mainContent">
+    <p>My Parms</p>
+    <ul id="parms">
+
+    </ul>
+
+</div>
+<script type="application/javascript">
+  //  var accessToken = getAccessToken();
+    sessionStorage.setItem("id_token", getIdToken());
+    var ul = document.getElementById("parms");
+    ul.appendChild(document.createElement("li").appendChild(document.createTextNode("id_token: " + sessionStorage.getItem("id_token"))));
+</script>
+
+<input type="button" id="ajaxBtn" value="Send GET request" /></div>
+<input type="button" id="ajaxJwtBtn" value="Send GET request with JWT" /></div>
+
+<p>
+</p>
+</body>
+
+</html>
