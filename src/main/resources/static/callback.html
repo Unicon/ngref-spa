@@ -7,53 +7,38 @@
     <script src="node_modules/jwt-client/jwt-client.js"></script>
 
     <script type="text/javascript">
-        $(document).ready(function () {
+        function callApi (token, user) {
+            var url = 'https://localhost:8444/user/parker';
 
-            $('#ajaxBtn').click(function(){
-
-                $.get('https://localhost:8444/user/parker', {name:'Steve'}, function (data, textStatus, jqXHR) {
-                    $('p').append(data.firstName);
-                });
-            });
-            $('#ajaxJwtBtn').click(function(){
-                var url = 'https://localhost:8444/user/parker';
-                var idToken = sessionStorage.getItem('id_token');
-                var headers = { Authorization: 'Bearer ' + idToken };
-
-                $.ajax({
-                    url: url,
-                    headers: headers
-                })
-                    .done(function(result) {
-                        $('p').append(result.firstName);
-                    })
-                    .fail(function(err) {
-                        $('p').append("call failed");
-                    });
-            });
-        });
-
-
-        function callAPI(endpoint, secured) {
-            var url = apiUrl + endpoint;
-            var accessToken = localStorage.getItem('access_token');
-
-            var headers;
-            if (secured && accessToken) {
-                headers = { Authorization: 'Bearer ' + accessToken };
-            }
-
+            var headers = { Authorization: 'Bearer ' + token};
             $.ajax({
                 url: url,
                 headers: headers
             })
                 .done(function(result) {
-                    $('#ping-view h2').text(result.message);
+                    $("#status").text("200");
+                    $("#apiReturn").text(result.firstName);
                 })
-                .fail(function(err) {
-                    $('#ping-view h2').text('Request failed: ' + err.statusText);
+                .fail(function(jqXHR, textStatus) {
+
+                    $("#status").text(jqXHR.status);
+                    $("#apiReturn").text("");
                 });
+            
         }
+        $(document).ready(function () {
+
+            $('#ajaxBtn').click(function(){
+                callApi("badtoken", "parker");
+
+
+            });
+            $('#ajaxJwtBtn').click(function(){
+                callApi(sessionStorage.getItem('id_token'), "parker");
+            });
+        });
+
+
     </script>
 
 </head>
@@ -65,11 +50,30 @@
 
 <div id="mainContent">
     <h1>Authentication Info</h1>
+    <table border="1" cellpadding="5">
+        <tr>
+            <td>JWT Issued by</td>
+            <td> <div id="issuer"></div></td>
+        </tr>
+        <tr>
+            <td>JWT Audience</td>
+            <td><div id="audience"></div></td>
+        </tr>
+        <tr>
+            <td>JWT Subject (User)</td>
+            <td><div id="user" /></td>
+        </tr>
+        <tr>
+            <td>RAW Token</td>
+            <td><div id="token" /></td>
+        </tr>
 
-    <div id="issuer"></div>
-    <div id="audience"></div>
-    <div id="user"></div>
-    <div id="token"></div>
+    </table>
+
+
+
+
+
 
 </div>
 <script type="application/javascript">
@@ -98,19 +102,35 @@
 
     sessionStorage.setItem("id_token", idToken);
     var session = JWT.remember();
+    $("#issuer").text(session.claim.iss);
+    $("#audience").text(session.claim.aud);
+    $("#user").text(session.claim.sub);
+    $("#token").text(idToken);
+   // document.getElementById("issuer").appendChild(document.createTextNode("issued_by: " + session.claim.iss));
 
-    document.getElementById("issuer").appendChild(document.createTextNode("issued_by: " + session.claim.iss));
-
-  document.getElementById("audience").appendChild(document.createTextNode("audience: " + session.claim.aud));
-  document.getElementById("user").appendChild(document.createTextNode("user: " + session.claim.sub));
-  document.getElementById("token").appendChild(document.createTextNode("Raw JWT: " + idToken));
+  //document.getElementById("audience").appendChild(document.createTextNode("audience: " + session.claim.aud));
+ // document.getElementById("user").appendChild(document.createTextNode("user: " + session.claim.sub));
+  //document.getElementById("token").appendChild(document.createTextNode("Raw JWT: " + idToken));
 </script>
 
-<input type="button" id="ajaxBtn" value="Send GET request" /></div>
-<input type="button" id="ajaxJwtBtn" value="Send GET request with JWT" /></div>
+
 
 <p>
 </p>
+<hr>
+<input type="button" id="ajaxBtn" value="Send GET request" />
+<input type="button" id="ajaxJwtBtn" value="Send GET request with JWT" />
+<p>
+</p>
+<table border="1px" >
+    <tr>
+        <td>Status Code</td>
+        <td><div id="status"/> </td>
+     <tr>
+        <td>Return Value</td>
+        <td><div id="apiReturn"></div></td>
+    </tr>
+</table>
 </body>
 
 </html>
