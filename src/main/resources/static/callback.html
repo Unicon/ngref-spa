@@ -7,56 +7,38 @@
     <script src="node_modules/jwt-client/jwt-client.js"></script>
 
     <script type="text/javascript">
+        function callApi (token, user) {
+            var url = 'https://localhost:8444/user/parker';
+
+            var headers = { Authorization: 'Bearer ' + token};
+            $.ajax({
+                url: url,
+                headers: headers
+            })
+                .done(function(result) {
+                    $("#status").text("200");
+                    $("#apiReturn").text(result.firstName);
+                })
+                .fail(function(jqXHR, textStatus) {
+
+                    $("#status").text(jqXHR.status);
+                    $("#apiReturn").text("");
+                });
+            
+        }
         $(document).ready(function () {
 
             $('#ajaxBtn').click(function(){
+                callApi("badtoken", "parker");
 
-                $.get('https://localhost:8444/user/parker', {name:'Steve'}, function (data, textStatus, jqXHR) {
-                    $('p').append(data.firstName);
-                });
+
             });
             $('#ajaxJwtBtn').click(function(){
-                var url = 'https://localhost:8444/user/parker';
-                var idToken = sessionStorage.getItem('id_token');
-                var headers = { Authorization: 'Bearer ' + idToken };
-
-                $.ajax({
-                    url: url,
-                    headers: headers
-                })
-                    .done(function(result) {
-                        $("#status").text("200");
-                        $("#apiReturn").text(result.firstName);
-                    })
-                    .fail(function(err) {
-                        $('p').append("call failed");
-                    });
+                callApi(sessionStorage.getItem('id_token'), "parker");
             });
         });
 
 
-        // function callAPI(endpoint, secured) {
-        //     var url = apiUrl + endpoint;
-        //     var accessToken = localStorage.getItem('access_token');
-        //
-        //     var headers;
-        //     if (secured && accessToken) {
-        //         headers = { Authorization: 'Bearer ' + accessToken };
-        //     }
-        //
-        //     $.ajax({
-        //         url: url,
-        //         headers: headers
-        //     })
-        //         .done(function(result) {
-        //             $('#ping-view h2').text(result.message);
-        //             //document.getElementById("apiReturn").appendChild()
-        //             document.getElementById("apiReturn").appendChild(document.createTextNode(result.message));
-        //         })
-        //         .fail(function(err) {
-        //             $('#ping-view h2').text('Request failed: ' + err.statusText);
-        //         });
-        // }
     </script>
 
 </head>
