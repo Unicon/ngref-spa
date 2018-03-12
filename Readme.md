@@ -1,8 +1,9 @@
-This is a readme
+#WileyPLUS NextGEN Single Page Web Application Reference Implementation
+
+# Running the application locally
+   mvn spring-boot:run
 
 
-Installation
-cd to the src/main/resources/static directory and run
-npm install jwt-client
 
-https://www.npmjs.com/package/jwt-client
+Reference
+ * https://www.npmjs.com/package/jwt-client
